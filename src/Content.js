@@ -1,5 +1,6 @@
 import * as React from "react";
 import Inscription from "./SignUp";
+import PokemonApp from "./Hook-1";
 
 // CONTAINER
 const Container = ({
@@ -127,11 +128,12 @@ const Home = () => {
   return (
     <div className="home">
       <h1>App Component</h1>
-      {smallContainer}
-      {mediumContainer}
-      {largeContainer}
-      <MesObjets />
-      <Inscription />
+      <PokemonApp />
+      {/* {smallContainer} */}
+      {/* {mediumContainer} */}
+      {/* {largeContainer} */}
+      {/* <MesObjets /> */}
+      {/* <Inscription /> */}
       {/* <Calculator
         style={{ fontSize: "30px" }}
         ftStyle={"italic"}
@@ -140,7 +142,7 @@ const Home = () => {
         operation={multiplication}
       />
       <Calculator ftStyle={"oblique"} nb1={1} nb2={2} operation={exponent} /> */}
-      <Calculator nb1={4} nb2={7} operation={exponent} />
+      {/* <Calculator nb1={4} nb2={7} operation={exponent} /> */}
     </div>
   );
 };
