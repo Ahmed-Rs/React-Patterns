@@ -25,17 +25,14 @@ const reducer = (data, action) => ({ ...data, ...action });
 
 function usePokemonResearcher(pokemonQuery) {
   const [data, dispatch] = React.useState(reducer, {
-    generalData: { name: null, ability: [], sprites: [] },
-    // ability : null,
+    generalData: null,
+    name: "",
+    sprites: [],
+    ability : [],
     // image : null,
     error: null,
   });
-  // const [generalData, setGeneralData] = React.useState("");
-  // const [ability, setAbility] = React.useState([]);
-  // const [image, setImage] = React.useState([]);
-  // const [error, setError] = React.useState(null);
   React.useEffect(() => {
-    // setError(null); // A éviter car on risque de ne pas récupérer de données.
     if (!pokemonQuery) {
       return;
     }
@@ -44,11 +41,15 @@ function usePokemonResearcher(pokemonQuery) {
         return response.json();
       })
       .then((info) => {
-        // dispatch({newData : info});
-        dispatch({ generalData: info }); // Ne pas confondre le 'data' de setData et le 'data' qui nous est retourné par l'API 
-        // dispatch({ability : info.abilities.length});
-        dispatch({name : info.name});
-        dispatch({image : info.sprites["front_shiny"]});
+        dispatch({
+          generalData: info,
+          ability: info.abilities.length,
+          name: info.name,
+          image: info.sprites["front_shiny"],
+        });
+        // dispatch({ability : info.abilities.length}); // Eviter de faire plusieurs dispatch
+        // dispatch({ name: info.name });
+        // dispatch({ image: info.sprites["front_shiny"] });
       })
       .catch((err) => {
         dispatch({ error: err });
@@ -64,22 +65,21 @@ function usePokemonResearcher(pokemonQuery) {
 }
 
 function PokemonViewer({ pokemonName }) {
-  // Ne pas oublier, les accolades pour les props et non les simples variables
+  // Ne pas oublier, les accolades pour les props et non pour les simples variables
   const state = usePokemonResearcher(pokemonName);
-  const { generalData, name, image, error } = state;
+  const { generalData, name, ability, image, error } = state;
   // const {newData, error} = state
   // console.log(pokemonName);
   console.log(generalData);
-  console.log(name);
+  // console.log(name);
 
   if (error) {
     throw error;
   }
   return (
     <div>
-      <p>
-        Pokemon Name: {name}
-      </p>
+      <p>Pokemon Name: {name}</p>
+      <p>Pokemon Abilities: {ability}</p>
       <div className="pokemon-img">
         <img src={image} alt="" />
       </div>
