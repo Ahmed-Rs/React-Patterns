@@ -21,38 +21,33 @@ function fetchPokemon(pokemonQuery) {
   return fetch(url, init);
 }
 
-const reducer = (data, action) => ({ ...data, ...action });
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "fetching":
+      return { mainData: null, error: null };
+    case "done":
+      return { mainData: action.payload, error: null };
+    case "fail":
+      return { mainData: null, error: action.error };
+    default:
+      throw new Error("Action non supporté");
+  }
+};
 
 function usePokemonResearcher(pokemonQuery) {
-  const [data, dispatch] = React.useState(reducer, {
-    // generalData: null,
-    // name: "",
-    // sprites: [],
-    // ability : [],
+  const [state, dispatch] = React.useReducer(reducer, {
+    mainData: null,
     error: null,
   });
   React.useEffect(() => {
     if (!pokemonQuery) {
       return;
     }
+    dispatch({ type: "fetching" });
     fetchPokemon(pokemonQuery)
-      .then((response) => {
-        return response.json();
-      })
-      .then((info) => {
-        dispatch({
-          generalData: info,
-          ability: info.abilities.length,
-          name: info.name,
-          image: info.sprites["front_shiny"],
-        });
-        // dispatch({ability : info.abilities.length}); // Eviter de faire plusieurs dispatch
-        // dispatch({ name: info.name });
-        // dispatch({ image: info.sprites["front_shiny"] });
-      })
-      .catch((err) => {
-        dispatch({ error: err });
-      });
+      .then((response) => response.json())
+      .then((info) => dispatch({ type: "done", payload: info }))
+      .catch((error) => dispatch({ type: "fail", error }));
   }, [pokemonQuery]);
 
   // if (error) {
@@ -60,16 +55,16 @@ function usePokemonResearcher(pokemonQuery) {
   //   return null;
   // }
 
-  return data;
+  return state;
 }
 
 function PokemonViewer({ pokemonName }) {
   // Ne pas oublier, les accolades pour les props et non pour les simples variables
   const state = usePokemonResearcher(pokemonName);
-  const { generalData, name, ability, image, error } = state; // C'est dans le .then(dispatch) plus haut que toutes ces variables sont définies
+  const { mainData, error } = state; // C'est dans le .then(dispatch) plus haut que toutes ces variables sont définies
   // const {data, error} = state
   // console.log(pokemonName);
-  console.log(generalData);
+  console.log(mainData);
   // console.log(name);
 
   if (error) {
@@ -77,11 +72,11 @@ function PokemonViewer({ pokemonName }) {
   }
   return (
     <div>
-      <p>Pokemon Name: {name}</p>
-      <p>Pokemon Abilities: {ability}</p>
+      {/* <p>Pokemon Name: {mainData.name}</p>
+      <p>Pokemon Abilities: {mainData.ability}</p>
       <div className="pokemon-img">
-        <img src={image} alt="" />
-      </div>
+        <img src={mainData.image} alt="" />
+      </div> */}
     </div>
   );
 }
@@ -134,3 +129,7 @@ function PokemonApp() {
 }
 
 export default PokemonApp;
+// generalData: info,
+// ability: info.abilities.length,
+// name: info.name,
+// image: info.sprites["front_shiny"],
