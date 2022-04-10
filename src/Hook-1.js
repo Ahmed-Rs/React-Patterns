@@ -25,11 +25,10 @@ const reducer = (data, action) => ({ ...data, ...action });
 
 function usePokemonResearcher(pokemonQuery) {
   const [data, dispatch] = React.useState(reducer, {
-    generalData: null,
-    name: "",
-    sprites: [],
-    ability : [],
-    // image : null,
+    // generalData: null,
+    // name: "",
+    // sprites: [],
+    // ability : [],
     error: null,
   });
   React.useEffect(() => {
@@ -67,8 +66,8 @@ function usePokemonResearcher(pokemonQuery) {
 function PokemonViewer({ pokemonName }) {
   // Ne pas oublier, les accolades pour les props et non pour les simples variables
   const state = usePokemonResearcher(pokemonName);
-  const { generalData, name, ability, image, error } = state;
-  // const {newData, error} = state
+  const { generalData, name, ability, image, error } = state; // C'est dans le .then(dispatch) plus haut que toutes ces variables sont définies
+  // const {data, error} = state
   // console.log(pokemonName);
   console.log(generalData);
   // console.log(name);
