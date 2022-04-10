@@ -21,7 +21,7 @@ function fetchPokemon(pokemonQuery) {
   return fetch(url, init);
 }
 
-const reducer = (state, action) => {
+const reducer = (data, action) => {
   switch (action.type) {
     case "fetching":
       return { mainData: null, error: null };
@@ -35,8 +35,9 @@ const reducer = (state, action) => {
 };
 
 function usePokemonResearcher(pokemonQuery) {
-  const [state, dispatch] = React.useReducer(reducer, {
+  const [data, dispatch] = React.useReducer(reducer, {
     mainData: null,
+    // name: null,
     error: null,
   });
   React.useEffect(() => {
@@ -55,7 +56,7 @@ function usePokemonResearcher(pokemonQuery) {
   //   return null;
   // }
 
-  return state;
+  return data;
 }
 
 function PokemonViewer({ pokemonName }) {
@@ -71,11 +72,17 @@ function PokemonViewer({ pokemonName }) {
     throw error;
   }
   return (
+    <PokemonPersoView mainDataViewer={mainData} />
+  )
+}
+
+function PokemonPersoView ({mainDataViewer}) {
+  return (
     <div>
-      {/* <p>Pokemon Name: {mainData.name}</p>
-      <p>Pokemon Abilities: {mainData.ability}</p>
+      {/* <p>Pokemon Name: {mainDataViewer.name}</p> */}
+      {/* <p>Pokemon Abilities: {mainDataViewer.ability}</p>
       <div className="pokemon-img">
-        <img src={mainData.image} alt="" />
+        <img src={mainDataViewer.image} alt="" />
       </div> */}
     </div>
   );
