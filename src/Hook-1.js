@@ -24,11 +24,11 @@ function fetchPokemon(pokemonQuery) {
 const reducer = (data, action) => {
   switch (action.type) {
     case "fetching":
-      return { mainData: null, error: null };
+      return { mainData: {}, error: null };
     case "done":
       return { mainData: action.payload, error: null };
     case "fail":
-      return { mainData: null, error: action.error };
+      return { mainData: {}, error: action.error };
     default:
       throw new Error("Action non supporté");
   }
@@ -36,7 +36,7 @@ const reducer = (data, action) => {
 
 function usePokemonResearcher(pokemonQuery) {
   const [data, dispatch] = React.useReducer(reducer, {
-    mainData: null,
+    mainData: {},
     // name: null,
     error: null,
   });
@@ -66,24 +66,33 @@ function PokemonViewer({ pokemonName }) {
   // const {data, error} = state
   // console.log(pokemonName);
   console.log(mainData);
-  // console.log(name);
 
   if (error) {
     throw error;
   }
   return (
-    <PokemonPersoView mainDataViewer={mainData} />
-  )
+    <div>
+      {mainData ? (
+        <PokemonPersoView mainDataViewer={mainData} />
+      ) : (
+        `Le Pokemon n'existe pas`
+      )}
+    </div>
+  );
 }
 
-function PokemonPersoView ({mainDataViewer}) {
+function PokemonPersoView({ mainDataViewer }) {
   return (
     <div>
-      {/* <p>Pokemon Name: {mainDataViewer.name}</p> */}
-      {/* <p>Pokemon Abilities: {mainDataViewer.ability}</p>
+      <p>Pokemon Name:{" "}{mainDataViewer.name}</p>{" "}
+      {/* On a réussi à accéder aux données de l'Objet mainDataViewer et donc mainData, en initialisant à {} au lieu de null. Ou alors on initialise à null et on utilise mainDataViewer?.name, ainsi nous évitons d'obtenir une erreur de console, car il faut savoir que le composant se render d'abord puis, le contenu du useEffect() s'exécute */}
+      <p>
+        Pokemon Abilities:{" "}
+        {mainDataViewer.abilities ? mainDataViewer.abilities[0].ability.name : `null`} {/* Usage d'un ternaire pour 'donner le temps' au composant d'afficher les valeurs chargées par useEffect() */}
+      </p>
       <div className="pokemon-img">
-        <img src={mainDataViewer.image} alt="" />
-      </div> */}
+        <img src={mainDataViewer.sprites?.front_shiny} alt="" />
+      </div>
     </div>
   );
 }
@@ -107,7 +116,7 @@ class ErrorBoundary extends React.Component {
 function ErrorDisplay({ error }) {
   return (
     <div style={{ color: "orange" }}>
-      Invalid Pokemon Name
+      Invalid Pokemon Query
       <pre>Details : {error.message}</pre>
     </div>
   );
