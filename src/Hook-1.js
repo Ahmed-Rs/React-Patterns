@@ -1,5 +1,6 @@
 // Hooks Personnalisés
 import * as React from "react";
+// POKEMON RESEARCHER
 
 const myHeader = new Headers({
   headers: {
@@ -24,11 +25,11 @@ function fetchPokemon(pokemonQuery) {
 const reducer = (data, action) => {
   switch (action.type) {
     case "fetching":
-      return { mainData: {}, error: null };
+      return { status: "fetching", mainData: {}, error: null };
     case "done":
-      return { mainData: action.payload, error: null };
+      return { status: "done", mainData: action.payload, error: null };
     case "fail":
-      return { mainData: {}, error: action.error };
+      return { status: "fail", mainData: {}, error: action.error };
     default:
       throw new Error("Action non supporté");
   }
@@ -36,9 +37,9 @@ const reducer = (data, action) => {
 
 function usePokemonResearcher(pokemonQuery) {
   const [data, dispatch] = React.useReducer(reducer, {
-    mainData: {},
-    // name: null,
+    mainData: {}, // Initialiser à Object vide !!! Sinon retour d'erreurs
     error: null,
+    status: "idle",
   });
   React.useEffect(() => {
     if (!pokemonQuery) {
@@ -51,44 +52,45 @@ function usePokemonResearcher(pokemonQuery) {
       .catch((error) => dispatch({ type: "fail", error }));
   }, [pokemonQuery]);
 
-  // if (error) {
-  //   throw error;
-  //   return null;
-  // }
-
   return data;
 }
 
 function PokemonViewer({ pokemonName }) {
   // Ne pas oublier, les accolades pour les props et non pour les simples variables
   const state = usePokemonResearcher(pokemonName);
-  const { mainData, error } = state; // C'est dans le .then(dispatch) plus haut que toutes ces variables sont définies
-  // const {data, error} = state
-  // console.log(pokemonName);
+  const { mainData, error, status } = state; // C'est dans le .then(dispatch) plus haut que toutes ces variables sont définies
   console.log(mainData);
 
-  if (error) {
+  if (status === "fail") {
     throw error;
+  } else if (status === "idle") {
+    return "Saisissez un nom Pokemon";
+  } else if (status === "fetching") {
+    return "Chargement en cours ...";
+  } else if (status === "done") {
+    return (
+      <div>
+        {mainData ? (
+          <PokemonPersoView mainDataViewer={mainData} />
+        ) : (
+          `Le Pokemon n'existe pas`
+        )}
+      </div>
+    );
   }
-  return (
-    <div>
-      {mainData ? (
-        <PokemonPersoView mainDataViewer={mainData} />
-      ) : (
-        `Le Pokemon n'existe pas`
-      )}
-    </div>
-  );
 }
 
 function PokemonPersoView({ mainDataViewer }) {
   return (
     <div>
-      <p>Pokemon Name:{" "}{mainDataViewer.name}</p>{" "}
+      <p>Pokemon Name: {mainDataViewer.name}</p>{" "}
       {/* On a réussi à accéder aux données de l'Objet mainDataViewer et donc mainData, en initialisant à {} au lieu de null. Ou alors on initialise à null et on utilise mainDataViewer?.name, ainsi nous évitons d'obtenir une erreur de console, car il faut savoir que le composant se render d'abord puis, le contenu du useEffect() s'exécute */}
       <p>
         Pokemon Abilities:{" "}
-        {mainDataViewer.abilities ? mainDataViewer.abilities[0].ability.name : `null`} {/* Usage d'un ternaire pour 'donner le temps' au composant d'afficher les valeurs chargées par useEffect() */}
+        {mainDataViewer.abilities
+          ? mainDataViewer.abilities[0].ability.name
+          : `null`}{" "}
+        {/* Usage d'un ternaire pour 'donner le temps' au composant d'afficher les valeurs chargées par useEffect() */}
       </p>
       <div className="pokemon-img">
         <img src={mainDataViewer.sprites?.front_shiny} alt="" />
