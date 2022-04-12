@@ -35,25 +35,49 @@ const reducer = (data, action) => {
   }
 };
 
-function usePokemonResearcher(pokemonQuery) {
+function useFetchData(search, fetch) {
   const [data, dispatch] = React.useReducer(reducer, {
-    mainData: {}, // Initialiser à Object vide !!! Sinon retour d'erreurs
+    mainData: {},
     error: null,
     status: "idle",
   });
   React.useEffect(() => {
-    if (!pokemonQuery) {
+    if (!search) {
       return;
     }
     dispatch({ type: "fetching" });
-    fetchPokemon(pokemonQuery)
+    fetch(search)
       .then((response) => response.json())
       .then((info) => dispatch({ type: "done", payload: info }))
-      .catch((error) => dispatch({ type: "fail", error }));
-  }, [pokemonQuery]);
+      .catch((error) => dispatch({ type: "fail", payload: error }));
+  }, [search, fetch]);
 
   return data;
 }
+
+function usePokemonResearcher(pokemonQuery) {
+  return useFetchData(pokemonQuery, fetchPokemon);
+}
+
+// function usePokemonResearcher(pokemonQuery) {
+//   const [data, dispatch] = React.useReducer(reducer, {
+//     mainData: {}, // Initialiser à Object vide !!! Sinon retour d'erreurs
+//     error: null,
+//     status: "idle",
+//   });
+//   React.useEffect(() => {
+//     if (!pokemonQuery) {
+//       return;
+//     }
+//     dispatch({ type: "fetching" });
+//     fetchPokemon(pokemonQuery)
+//       .then((response) => response.json())
+//       .then((info) => dispatch({ type: "done", payload: info }))
+//       .catch((error) => dispatch({ type: "fail", error }));
+//   }, [pokemonQuery]);
+
+//   return data;
+// }
 
 function PokemonViewer({ pokemonName }) {
   // Ne pas oublier, les accolades pour les props et non pour les simples variables
