@@ -4,27 +4,22 @@ import * as React from "react";
 
 const themes = {
   light: {
-    ul: { listStyleType: "square" },
-    li: { background: "#eeeeee", color: "#000000" },
-    foreground: "#000000",
-    background: "#eeeeee",
+    backgroundColor: "silver",
+    color: "black",
   },
+
   dark: {
-    ul: { listStyleImage: "url('https://www.w3schools.com/css/sqpurple.gif')" },
-    li: { background: "#222222", color: "white" },
-    foreground: "#ffffff",
-    background: "#222222",
+    // li: { background: "#222222", color: "white" },
+    // background: "#222222",
+    backgroundColor: "rgb(125, 125, 125)",
+    color: "white",
   },
 };
 
-const themeContext = React.createContext(themes.light);
+const ThemeContext = React.createContext(themes);
 
 const myHeader = new Headers({
-  headers: {
-    // "X-Api-Key": "25835002-2618-40f1-b7ba-05f7e9c0417e",
-    // "content-type": "application/json",
-    // 'Accept': 'application/json'
-  },
+  headers: {},
 });
 
 const init = {
@@ -85,13 +80,12 @@ function usePokemonResearcher(pokemonQuery) {
 }
 
 function PokemonViewer({ pokemonName }) {
-  // Ne pas oublier, les accolades pour les props et non pour les simples variables
   const state = usePokemonResearcher(pokemonName);
-  const { mainData, error, status } = state; // C'est dans le .then(dispatch) plus haut que toutes ces variables sont définies
+  const { mainData, error, status } = state;
   console.log(mainData);
 
   if (status === "fail") {
-    throw new Error (`Le Pokemon ${pokemonName} n'existe pas`)
+    throw new Error(`Le Pokemon ${pokemonName} n'existe pas`);
   } else if (status === "idle") {
     return "Saisissez un nom Pokemon";
   } else if (status === "fetching") {
@@ -117,7 +111,6 @@ function PokemonPersoView({ mainDataViewer }) {
           Pokemon Name:
           <br /> {mainDataViewer.name}
         </p>{" "}
-        {/* On a réussi à accéder aux données de l'Objet mainDataViewer et donc mainData, en initialisant à {} au lieu de null. Ou alors on initialise à null et on utilise mainDataViewer?.name, ainsi nous évitons d'obtenir une erreur de console, car il faut savoir que le composant se render d'abord puis, le contenu du useEffect() s'exécute */}
         <p className="pokemon-description-experience">
           Base-Experience:
           <br /> {mainDataViewer.base_experience}
@@ -128,7 +121,6 @@ function PokemonPersoView({ mainDataViewer }) {
           {mainDataViewer.abilities
             ? mainDataViewer.abilities.length
             : `null`}{" "}
-          {/* Usage d'un ternaire pour 'donner le temps' au composant d'afficher les valeurs chargées par useEffect() */}
         </p>
         <p className="pokemon-description-weight">
           Weight:
@@ -139,6 +131,31 @@ function PokemonPersoView({ mainDataViewer }) {
         <img src={mainDataViewer.sprites?.front_shiny} alt="" />
       </div>
     </div>
+  );
+}
+
+function PokemonSearchForm({ onSearch }) {
+  const [name, setName] = React.useState("pikachu");
+  const theme = React.useContext(ThemeContext);
+  return (
+    <>
+      <label htmlFor="" className="pokemon-label">
+        Enter Pokemon Name
+      </label>
+      <input // Sortir les input dans un composant à part permet de résoudre le porblème des relancement du composant principal à chaque frappe.
+        className="pokemon-input"
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        type="button"
+        className="pokemon-btn-submit"
+        value="Search"
+        onClick={() => onSearch(name)} // Faire attention à ne rien mettre entre les premières parenthèses.
+        style={{ backgroundColor: theme.backgroundColor, color: theme.color }}
+      />
+    </>
   );
 }
 
@@ -169,29 +186,18 @@ function ErrorDisplay({ error }) {
 
 function PokemonApp() {
   const [pokemonName, setPokemonName] = React.useState("pikachu");
-  const [name, setName] = React.useState("");
+  const handleSearch = (name) => {
+    setPokemonName(name);
+  };
 
   return (
     <div className="pokemon-section">
-      <label htmlFor="" className="pokemon-label">
-        Enter Pokemon Name
-      </label>
-      <input // Essayer de sortir les input dans un composant extérieur à PokemonApp() poour ne pas avoir de render après chaque frappe ???
-        className="pokemon-input"
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input
-        type="button"
-        className="pokemon-btn-submit"
-        value="Rechercher"
-        onClick={() => setPokemonName(name)} // Faire attention à ne rien mettre entre les premières parenthèses.
-      />
-      <ErrorBoundary key={pokemonName} ErrorDisp={ErrorDisplay}>
-        {/* La clé est très importante car permet de réinitialiser l'erreur à chaque frappe, et donc de laisser le fetch se relancer à chaque frappe. Il convient de mettre la valeur pokemonName, et non son setter pour que cela fonctionne */}
-        <PokemonViewer pokemonName={pokemonName} />
-      </ErrorBoundary>
+      <ThemeContext.Provider value={themes.dark}>
+        <PokemonSearchForm onSearch={handleSearch} />
+        <ErrorBoundary key={pokemonName} ErrorDisp={ErrorDisplay}>
+          <PokemonViewer pokemonName={pokemonName} />
+        </ErrorBoundary>
+      </ThemeContext.Provider>
     </div>
   );
 }

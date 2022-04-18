@@ -150,6 +150,17 @@ input[type="submit"] {
   letter-spacing: 0.5em;
 }
 
+.pokemon-btn-submit {
+  margin-top: 10px;
+  cursor: pointer;
+  padding: 5px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 3px;
+  /* background-color: rgb(125, 125, 125); */
+  /* color: white; */
+}
+
 .pokemon-capsule {
   display: flex;
   justify-content: center;
