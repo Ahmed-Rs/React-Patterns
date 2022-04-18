@@ -2,6 +2,23 @@
 import * as React from "react";
 // POKEMON RESEARCHER
 
+const themes = {
+  light: {
+    ul: { listStyleType: "square" },
+    li: { background: "#eeeeee", color: "#000000" },
+    foreground: "#000000",
+    background: "#eeeeee",
+  },
+  dark: {
+    ul: { listStyleImage: "url('https://www.w3schools.com/css/sqpurple.gif')" },
+    li: { background: "#222222", color: "white" },
+    foreground: "#ffffff",
+    background: "#222222",
+  },
+};
+
+const themeContext = React.createContext(themes.light);
+
 const myHeader = new Headers({
   headers: {
     // "X-Api-Key": "25835002-2618-40f1-b7ba-05f7e9c0417e",
@@ -42,7 +59,7 @@ function useFetchData(callback) {
     status: "idle",
   });
   React.useEffect(() => {
-    const promise = callback()
+    const promise = callback();
     if (!promise) {
       return;
     }
@@ -58,12 +75,12 @@ function useFetchData(callback) {
 }
 
 function usePokemonResearcher(pokemonQuery) {
-  const myCallback = React.useCallback(()=> {
+  const myCallback = React.useCallback(() => {
     if (!pokemonQuery) {
-      return
+      return;
     }
-    return fetchPokemon(pokemonQuery)
-  }, [pokemonQuery])
+    return fetchPokemon(pokemonQuery);
+  }, [pokemonQuery]);
   return useFetchData(myCallback);
 }
 
@@ -74,7 +91,7 @@ function PokemonViewer({ pokemonName }) {
   console.log(mainData);
 
   if (status === "fail") {
-    throw error;
+    throw new Error (`Le Pokemon ${pokemonName} n'existe pas`)
   } else if (status === "idle") {
     return "Saisissez un nom Pokemon";
   } else if (status === "fetching") {
@@ -152,17 +169,24 @@ function ErrorDisplay({ error }) {
 
 function PokemonApp() {
   const [pokemonName, setPokemonName] = React.useState("pikachu");
+  const [name, setName] = React.useState("");
 
   return (
     <div className="pokemon-section">
       <label htmlFor="" className="pokemon-label">
         Enter Pokemon Name
       </label>
-      <input
+      <input // Essayer de sortir les input dans un composant extérieur à PokemonApp() poour ne pas avoir de render après chaque frappe ???
         className="pokemon-input"
         type="text"
-        value={pokemonName}
-        onChange={(e) => setPokemonName(e.target.value)}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        type="button"
+        className="pokemon-btn-submit"
+        value="Rechercher"
+        onClick={() => setPokemonName(name)} // Faire attention à ne rien mettre entre les premières parenthèses.
       />
       <ErrorBoundary key={pokemonName} ErrorDisp={ErrorDisplay}>
         {/* La clé est très importante car permet de réinitialiser l'erreur à chaque frappe, et donc de laisser le fetch se relancer à chaque frappe. Il convient de mettre la valeur pokemonName, et non son setter pour que cela fonctionne */}

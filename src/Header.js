@@ -31,7 +31,7 @@ const Header = () => {
     <header className="header">
       <Title />
       <Navbar />
-      <Logo />
+      {/* <Logo /> */}
     </header>
   );
 };
